@@ -1,0 +1,6 @@
+- hosts: vm-4
+  tasks:
+    - name: Install K9S
+      command: /home/linuxbrew/.linuxbrew/bin/brew install k9s
+      register: out
+    - debug: var=out.stdout_lines

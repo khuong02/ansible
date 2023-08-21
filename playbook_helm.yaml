@@ -1,0 +1,6 @@
+- hosts: vm-4
+  tasks:
+    - name: Install helm
+      command: helm version
+      register: out
+    - debug: var=out.stdout_lines

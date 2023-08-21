@@ -1,0 +1,46 @@
+- hosts: vm-4
+  tasks:
+    - name: Install K3S
+      shell: |
+        if [ ! command -v k3s &> /dev/null ];
+        then
+            curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable servicelb" sh -
+            exit
+        fi
+      register: out
+    - debug: var=out.stdout_lines
+
+    - name: Export kubeconfig
+      shell: |
+        if [ ! -d "~/.kube" ]; then
+          mkdir -p ~/.kube
+        fi
+        sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config
+        sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+      register: out
+    - debug: var=out.stdout_lines
+
+    - name: Copy config traefik to remote machine
+      copy: src=./traefik dest=/home/dev mode=0644
+      register: out
+    - debug: var=out.stdout_lines
+    
+    - name: Traefik config
+      command: kubectl apply -f ~/traefik/config.yaml
+      register: out
+    - debug: var=out.stdout_lines
+
+    - name: Install metallb
+      command: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.9/config/manifests/metallb-native.yaml
+      register: out
+    - debug: var=out.stdout_lines
+
+    - name: Copy config metallb to remote machine
+      copy: src=./metallb dest=/home/dev mode=0644
+      register: out
+    - debug: var=out.stdout_lines
+
+    - name: Apply metallb config
+      command: kubectl apply -f /home/dev/metallb
+      register: out
+    - debug: var=out.stdout_lines
