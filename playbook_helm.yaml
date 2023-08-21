@@ -1,6 +1,6 @@
 - hosts: vm-4
   tasks:
     - name: Install helm
-      command: helm version
+      command: /home/linuxbrew/.linuxbrew/bin/brew install helm
       register: out
     - debug: var=out.stdout_lines
